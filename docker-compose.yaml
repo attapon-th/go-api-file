@@ -1,0 +1,14 @@
+version: "3.8"
+services:
+  apifiles:
+    image: attap0n/apifiles:latest
+    ports:
+      - 18080:8080
+    environment:
+      TZ: Asia/Bangkok
+    #
+    command: /app/apifiles serv --port 8080 --prefix "/assets" --dirpath "/data/assets"
+    volumes:
+      - file-data:/data/assets
+volumes:
+  file-data:

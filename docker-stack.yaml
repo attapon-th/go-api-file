@@ -1,0 +1,36 @@
+# ENV required
+# --------------------------------------------
+# SERVICE_NAME=filebrowser1234
+# DOMAIN=localhost
+# BASE_URL=/filebrowser4321
+# PUID=1000
+# PGID=1000
+# --------------------------------------------
+# END ENV
+version: "3.8"
+services:
+  apifiles:
+    image: attap0n/apifiles:latest
+    environment:
+      TZ: Asia/Bangkok
+    command: /app/apifiles serv --prefix "${BASE_URL:-/files}" --dirpath "/data/assets"
+    user: 1000:1000 # default: 1000 (required premission directory)
+    deploy:
+      mode: replicated
+      replicas: 1
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.${SERVICE_NAME}.tls=true"
+        - "traefik.http.routers.${SERVICE_NAME}.entrypoints=web,websecure"
+        - "traefik.http.routers.${SERVICE_NAME}.rule=Host(`${DOMAIN}`) && PathPrefix(`${BASE_URL}`)"
+        - "traefik.http.services.${SERVICE_NAME}.loadbalancer.server.port=80"
+    networks:
+      - proxy
+    volumes:
+      - file-data:/data/assets
+volumes:
+  file-data:
+
+networks:
+  proxy:
+    external: true
